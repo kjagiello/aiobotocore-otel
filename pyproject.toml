@@ -1,0 +1,54 @@
+[project]
+name = "aiobotocore-otel"
+version = "1.0.0.dev0"
+description = "OpenTelemetry aiobotocore instrumentation"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Krzysztof Jagiello", email = "hello@kjagiello.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "opentelemetry-api~=1.31",
+    "opentelemetry-propagator-aws-xray~=1.0",
+    "opentelemetry-instrumentation==0.52b0",
+    "opentelemetry-semantic-conventions==0.52b0",
+    "aiobotocore~=2.21.0",
+]
+
+[dependency-groups]
+dev = [
+    "aws-xray-sdk>=2.14.0",
+    "botocore>=1.37,<1.37.2",
+    "docker>=7.1.0",
+    "httpx>=0.28.1",
+    "moto[server]>=5.0.28",
+    "nox>=2025.2.9",
+    "opentelemetry-sdk~=1.31",
+    "opentelemetry-test-utils==0.52b0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.25.3",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.11.0",
+]
+
+[project.entry-points.opentelemetry_instrumentor]
+botocore = "opentelemetry.instrumentation.aiobotocore:AioBotocoreInstrumentor"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/opentelemetry"]

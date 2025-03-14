@@ -1,0 +1,147 @@
+---
+name: CI/CD
+
+on:
+  merge_group:
+  push:
+    branches:
+      - main
+    tags:
+      - >-
+        [0-9]+.[0-9]+.[0-9]+
+      - >-
+        [0-9]+.[0-9]+.[0-9]+.dev[0-9]+
+  pull_request:
+    branches:
+      - main
+      - >-
+        [0-9].[0-9]+.[0-9]+
+
+env:
+  FORCE_COLOR: 1
+  UV_FROZEN: 1
+
+jobs:
+  build:
+    name: Build distribution 📦
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Build distribution 📦
+        run: uv build
+
+      - name: Check distribution 📦
+        run: uvx twine check --strict dist/*
+
+      - name: Upload distribution 📦
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+  build-matrix:
+    name: Generate test matrix
+    runs-on: ubuntu-latest
+
+    outputs:
+      session: ${{ steps.session.outputs.session }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Build matrix
+        id: session
+        run: |
+          echo session=$(uvx nox -l -k test --json | jq -c '[.[].session]') \
+          | tee --append $GITHUB_OUTPUT
+
+  test:
+    name: Test Python ${{ matrix.session }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: build-matrix
+    continue-on-error: ${{ matrix.experimental }}
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        session: ${{ fromJson(needs.build-matrix.outputs.session) }}
+        os:
+          - ubuntu-24.04
+        include:
+          - experimental: false
+          - upload-coverage: true
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: List sessions
+        run: uvx nox -l
+
+      - name: Run tests
+        run: uvx nox -s "${{ matrix.session }}" -- --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.upload-coverage }}
+        uses: codecov/codecov-action@v5.4.0
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+  check:
+    if: always()
+    needs:
+      - build
+      - test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
+
+  pypi-publish:
+    name: Publish Python 🐍 distribution 📦 to PyPI
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    needs: check
+    environment:
+      name: pypi
+      url: https://pypi.org/project/otel-aiobotocore/${{ github.ref_name }}
+    permissions:
+      id-token: write
+    timeout-minutes: 5
+
+    steps:
+      - name: Download distribution 📦
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Check if distribution 📦 names match git tag
+        run: |
+          test -f "dist/aiobotocore_otel-${{ github.ref_name }}.tar.gz"
+          test -f "dist/aiobotocore_otel-${{ github.ref_name }}-py3-none-any.whl"
+
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
