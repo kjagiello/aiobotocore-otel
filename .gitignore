@@ -9,3 +9,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Generated on dist build
+src/opentelemetry/instrumentation/aiobotocore/version.py
