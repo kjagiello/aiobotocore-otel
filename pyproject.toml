@@ -20,10 +20,10 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "opentelemetry-api~=1.31",
+    "opentelemetry-api~=1.0",
     "opentelemetry-propagator-aws-xray~=1.0",
-    "opentelemetry-instrumentation==0.52b0",
-    "opentelemetry-semantic-conventions==0.52b0",
+    "opentelemetry-instrumentation>=0.40b0",
+    "opentelemetry-semantic-conventions>=0.40b0",
     "aiobotocore~=2.21.0",
 ]
 
