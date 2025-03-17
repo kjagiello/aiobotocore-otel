@@ -1,6 +1,6 @@
 # OpenTelemetry aiobotocore instrumentation
 
-[![PyPI version](https://badge.fury.io/py/otel-aiobotocore.svg)](https://badge.fury.io/py/otel-aiobotocore)
+[![PyPI version](https://badge.fury.io/py/aiobotocore-otel.svg)](https://badge.fury.io/py/aiobotocore-otel)
 
 This library allows tracing requests made by the [aiobotocore] library.
 

@@ -126,7 +126,7 @@ jobs:
     needs: check
     environment:
       name: pypi
-      url: https://pypi.org/project/otel-aiobotocore/${{ github.ref_name }}
+      url: https://pypi.org/project/aiobotocore-otel/${{ github.ref_name }}
     permissions:
       id-token: write
     timeout-minutes: 5
