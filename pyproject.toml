@@ -27,6 +27,9 @@ dependencies = [
     "aiobotocore~=2.21.0",
 ]
 
+[project.optional-dependencies]
+instruments = ["aiobotocore"]
+
 [dependency-groups]
 dev = [
     "aws-xray-sdk>=2.14.0",
