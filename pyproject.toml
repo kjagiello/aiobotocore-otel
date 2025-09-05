@@ -8,7 +8,7 @@ authors = [
     { name = "Krzysztof Jagiello", email = "hello@kjagiello.com" },
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
@@ -24,7 +24,7 @@ dependencies = [
     "opentelemetry-propagator-aws-xray~=1.0",
     "opentelemetry-instrumentation>=0.40b0",
     "opentelemetry-semantic-conventions>=0.40b0",
-    "aiobotocore~=2.21.0",
+    "aiobotocore~=2.24.0",
 ]
 
 [project.optional-dependencies]
@@ -33,7 +33,7 @@ instruments = ["aiobotocore"]
 [dependency-groups]
 dev = [
     "aws-xray-sdk>=2.14.0",
-    "botocore>=1.37,<1.37.2",
+    "botocore>=1.37,<1.40.24",
     "docker>=7.1.0",
     "hatch-vcs>=0.4.0",
     "httpx>=0.28.1",

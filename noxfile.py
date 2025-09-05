@@ -9,7 +9,7 @@ def uv_run(session: nox.Session, *args: str) -> None:
 
 
 @nox.session(python=["3.9", "3.10", "3.11", "3.12", "3.13"])
-@nox.parametrize("aiobotocore", ["2.21.0", "2.21.1"])
+@nox.parametrize("aiobotocore", ["2.24.1", "2.24.2"])
 def test(session: nox.Session, aiobotocore: str) -> None:
     uv_run(
         session,
