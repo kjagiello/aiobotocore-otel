@@ -3,8 +3,7 @@ from inspect import isawaitable, ismethod
 
 
 def async_to_sync(coro):
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(coro)
+    return asyncio.run(coro)
 
 
 class AsyncClient:
