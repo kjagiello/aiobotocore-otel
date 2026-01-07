@@ -17,7 +17,8 @@ def test(session: nox.Session, aiobotocore: str) -> None:
         f"aiobotocore=={aiobotocore}",
         "--",
         "pytest",
-        "--cov",
+        "--cov=src",
+        "--cov=test",
         "--cov-report=term",
         *session.posargs,
     )
