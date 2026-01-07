@@ -13,4 +13,4 @@
 # limitations under the License.
 
 
-_instruments = ("aiobotocore ~= 2.0",)
+_instruments = ("aiobotocore >= 2.0, < 4.0",)
