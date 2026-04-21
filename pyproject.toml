@@ -24,7 +24,7 @@ dependencies = [
     "opentelemetry-propagator-aws-xray~=1.0",
     "opentelemetry-instrumentation>=0.40b0",
     "opentelemetry-semantic-conventions>=0.40b0",
-    "aiobotocore>=2.24.0,<3.5.0",
+    "aiobotocore>=2.24.0,<3.6.0",
 ]
 
 [project.optional-dependencies]
