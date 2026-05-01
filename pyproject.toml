@@ -30,6 +30,12 @@ dependencies = [
 [project.optional-dependencies]
 instruments = ["aiobotocore"]
 
+[project.urls]
+Homepage = "https://github.com/kjagiello/aiobotocore-otel"
+Source = "https://github.com/kjagiello/aiobotocore-otel"
+Issues = "https://github.com/kjagiello/aiobotocore-otel/issues"
+Changelog = "https://github.com/kjagiello/aiobotocore-otel/releases"
+
 [dependency-groups]
 dev = [
     "aws-xray-sdk>=2.14.0",
