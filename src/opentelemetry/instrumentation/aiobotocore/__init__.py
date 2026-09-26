@@ -48,6 +48,8 @@ API
 The `instrument` method accepts the following keyword args:
 
 tracer_provider (TracerProvider) - an optional tracer provider
+meter_provider (MeterProvider) - an optional meter provider
+logger_provider (LoggerProvider) - an optional logger provider
 request_hook (Callable) - a function with extra user-defined logic to be performed before performing the request
 this function signature is:  def request_hook(span: Span, service_name: str, operation_name: str, api_params: dict) -> None
 response_hook (Callable) - a function with extra user-defined logic to be performed after performing the request
@@ -91,6 +93,7 @@ for the following AWS services:
 """
 
 import logging
+import warnings
 from typing import Any, Callable, Collection, Dict, Optional, Tuple
 
 from aiobotocore.client import AioBaseClient
@@ -161,6 +164,14 @@ class AioBotocoreInstrumentor(BaseInstrumentor):
 
         self.tracer_provider = kwargs.get("tracer_provider")
         self.logger_provider = kwargs.get("logger_provider")
+        if "event_logger_provider" in kwargs:
+            warnings.warn(
+                "The event_logger_provider argument is deprecated and ignored, "
+                "since the OpenTelemetry Events API has been removed. "
+                "Use logger_provider instead.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
         self.meter_provider = kwargs.get("meter_provider")
 
         wrap_function_wrapper(
