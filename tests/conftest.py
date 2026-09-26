@@ -187,8 +187,13 @@ def convert_body_to_literal(data):
 @pytest.fixture
 def mock_aws_response():
     async def patch_read(self, _amt=None):
-        self.__wrapped__.seek(0)
-        return self.__wrapped__.read()
+        # aiobotocore < 3.8 proxies the raw stream, newer versions expose it
+        if hasattr(type(self), "raw_stream"):
+            raw_stream = self.raw_stream
+        else:
+            raw_stream = self.__wrapped__
+        raw_stream.seek(0)
+        return raw_stream.read()
 
     def patch_response(original):
         async def _inner(http_response, operation_model):
