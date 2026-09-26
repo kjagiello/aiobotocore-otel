@@ -172,7 +172,7 @@ class TestDynamoDbExtension(TestBase):
         extension.on_success(
             span,
             {"ItemCollectionMetrics": {"ItemCollectionKey": {"id": "1"}}},
-            _BotocoreInstrumentorContext(event_logger=mock.Mock()),
+            _BotocoreInstrumentorContext(logger=mock.Mock()),
         )
         self.assert_item_col_metrics(span)
 
@@ -280,7 +280,7 @@ class TestDynamoDbExtension(TestBase):
         extension.on_success(
             span,
             {"ConsumedCapacity": {"TableName": "table"}},
-            _BotocoreInstrumentorContext(event_logger=mock.Mock()),
+            _BotocoreInstrumentorContext(logger=mock.Mock()),
         )
         self.assert_consumed_capacity(span, "table")
 

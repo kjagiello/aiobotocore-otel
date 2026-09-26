@@ -15,7 +15,6 @@ from opentelemetry.instrumentation.aiobotocore import AioBotocoreInstrumentor
 from opentelemetry.instrumentation.aiobotocore.environment_variables import (
     OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT,
 )
-from opentelemetry.sdk._events import EventLoggerProvider
 from opentelemetry.sdk._logs import LoggerProvider
 from opentelemetry.sdk._logs.export import (
     InMemoryLogExporter,
@@ -59,13 +58,12 @@ def fixture_tracer_provider(span_exporter):
     return provider
 
 
-@pytest.fixture(scope="function", name="event_logger_provider")
-def fixture_event_logger_provider(log_exporter):
+@pytest.fixture(scope="function", name="logger_provider")
+def fixture_logger_provider(log_exporter):
     provider = LoggerProvider()
     provider.add_log_record_processor(SimpleLogRecordProcessor(log_exporter))
-    event_logger_provider = EventLoggerProvider(provider)
 
-    return event_logger_provider
+    return provider
 
 
 @pytest.fixture(scope="function", name="meter_provider")
@@ -88,13 +86,13 @@ def environment():
 
 
 @pytest.fixture(scope="function")
-def instrument_no_content(tracer_provider, event_logger_provider, meter_provider):
+def instrument_no_content(tracer_provider, logger_provider, meter_provider):
     os.environ.update({OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: "False"})
 
     instrumentor = AioBotocoreInstrumentor()
     instrumentor.instrument(
         tracer_provider=tracer_provider,
-        event_logger_provider=event_logger_provider,
+        logger_provider=logger_provider,
         meter_provider=meter_provider,
     )
 
@@ -104,12 +102,12 @@ def instrument_no_content(tracer_provider, event_logger_provider, meter_provider
 
 
 @pytest.fixture(scope="function")
-def instrument_with_content(tracer_provider, event_logger_provider, meter_provider):
+def instrument_with_content(tracer_provider, logger_provider, meter_provider):
     os.environ.update({OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: "True"})
     instrumentor = AioBotocoreInstrumentor()
     instrumentor.instrument(
         tracer_provider=tracer_provider,
-        event_logger_provider=event_logger_provider,
+        logger_provider=logger_provider,
         meter_provider=meter_provider,
     )
 
