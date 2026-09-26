@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional, Tuple
 
-from opentelemetry._events import EventLogger
+from opentelemetry._logs import Logger
 from opentelemetry.metrics import Instrument, Meter
 from opentelemetry.trace import SpanKind
 from opentelemetry.trace.span import Span
@@ -90,10 +90,10 @@ class _AwsSdkCallContext:
 class _BotocoreInstrumentorContext:
     def __init__(
         self,
-        event_logger: EventLogger,
+        logger: Logger,
         metrics: Dict[str, Instrument] | None = None,
     ):
-        self.event_logger = event_logger
+        self.logger = logger
         self.metrics = metrics or {}
 
 
@@ -107,8 +107,8 @@ class _AwsSdkExtension:
         return "1.11.0"
 
     @staticmethod
-    def event_logger_schema_version() -> str:
-        """Returns the event logger OTel schema version the extension is following"""
+    def logger_schema_version() -> str:
+        """Returns the logger OTel schema version the extension is following"""
         return "1.30.0"
 
     @staticmethod

@@ -48,6 +48,8 @@ API
 The `instrument` method accepts the following keyword args:
 
 tracer_provider (TracerProvider) - an optional tracer provider
+meter_provider (MeterProvider) - an optional meter provider
+logger_provider (LoggerProvider) - an optional logger provider
 request_hook (Callable) - a function with extra user-defined logic to be performed before performing the request
 this function signature is:  def request_hook(span: Span, service_name: str, operation_name: str, api_params: dict) -> None
 response_hook (Callable) - a function with extra user-defined logic to be performed after performing the request
@@ -91,6 +93,7 @@ for the following AWS services:
 """
 
 import logging
+import warnings
 from typing import Any, Callable, Collection, Dict, Optional, Tuple
 
 from aiobotocore.client import AioBaseClient
@@ -98,7 +101,7 @@ from aiobotocore.endpoint import AioEndpoint
 from botocore.exceptions import ClientError
 from wrapt import wrap_function_wrapper
 
-from opentelemetry._events import get_event_logger
+from opentelemetry._logs import get_logger
 from opentelemetry.instrumentation.aiobotocore.extensions import (
     _find_extension,
     _has_extension,
@@ -145,8 +148,8 @@ class AioBotocoreInstrumentor(BaseInstrumentor):
 
         # tracers are lazy initialized per-extension in _get_tracer
         self._tracers = {}
-        # event_loggers are lazy initialized per-extension in _get_event_logger
-        self._event_loggers = {}
+        # loggers are lazy initialized per-extension in _get_logger
+        self._loggers = {}
         # meters are lazy initialized per-extension in _get_meter
         self._meters = {}
         # metrics are lazy initialized per-extension in _get_metrics
@@ -160,7 +163,15 @@ class AioBotocoreInstrumentor(BaseInstrumentor):
             self.propagator = propagator
 
         self.tracer_provider = kwargs.get("tracer_provider")
-        self.event_logger_provider = kwargs.get("event_logger_provider")
+        self.logger_provider = kwargs.get("logger_provider")
+        if "event_logger_provider" in kwargs:
+            warnings.warn(
+                "The event_logger_provider argument is deprecated and ignored, "
+                "since the OpenTelemetry Events API has been removed. "
+                "Use logger_provider instead.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
         self.meter_provider = kwargs.get("meter_provider")
 
         wrap_function_wrapper(
@@ -201,23 +212,23 @@ class AioBotocoreInstrumentor(BaseInstrumentor):
         )
         return self._tracers[instrumentation_name]
 
-    def _get_event_logger(self, extension: _AwsSdkExtension):
-        """This is a multiplexer in order to have an event logger per extension"""
+    def _get_logger(self, extension: _AwsSdkExtension):
+        """This is a multiplexer in order to have a logger per extension"""
 
         instrumentation_name = self._get_instrumentation_name(extension)
-        event_logger = self._event_loggers.get(instrumentation_name)
-        if event_logger:
-            return event_logger
+        instrumentation_logger = self._loggers.get(instrumentation_name)
+        if instrumentation_logger:
+            return instrumentation_logger
 
-        schema_version = extension.event_logger_schema_version()
-        self._event_loggers[instrumentation_name] = get_event_logger(
+        schema_version = extension.logger_schema_version()
+        self._loggers[instrumentation_name] = get_logger(
             instrumentation_name,
             "",
             schema_url=f"https://opentelemetry.io/schemas/{schema_version}",
-            event_logger_provider=self.event_logger_provider,
+            logger_provider=self.logger_provider,
         )
 
-        return self._event_loggers[instrumentation_name]
+        return self._loggers[instrumentation_name]
 
     def _get_meter(self, extension: _AwsSdkExtension):
         """This is a multiplexer in order to have a meter per extension"""
@@ -291,11 +302,11 @@ class AioBotocoreInstrumentor(BaseInstrumentor):
         end_span_on_exit = extension.should_end_span_on_exit()
 
         tracer = self._get_tracer(extension)
-        event_logger = self._get_event_logger(extension)
+        instrumentation_logger = self._get_logger(extension)
         meter = self._get_meter(extension)
         metrics = self._get_metrics(extension, meter)
         instrumentor_ctx = _BotocoreInstrumentorContext(
-            event_logger=event_logger,
+            logger=instrumentation_logger,
             metrics=metrics,
         )
         with tracer.start_as_current_span(

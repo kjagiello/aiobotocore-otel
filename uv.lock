@@ -61,10 +61,10 @@ dev = [
 requires-dist = [
     { name = "aiobotocore", specifier = ">=2.24.0,<3.8.0" },
     { name = "aiobotocore", marker = "extra == 'instruments'" },
-    { name = "opentelemetry-api", specifier = "~=1.0" },
-    { name = "opentelemetry-instrumentation", specifier = ">=0.40b0" },
+    { name = "opentelemetry-api", specifier = "~=1.28" },
+    { name = "opentelemetry-instrumentation", specifier = ">=0.49b0" },
     { name = "opentelemetry-propagator-aws-xray", specifier = "~=1.0" },
-    { name = "opentelemetry-semantic-conventions", specifier = ">=0.40b0" },
+    { name = "opentelemetry-semantic-conventions", specifier = ">=0.49b0" },
 ]
 provides-extras = ["instruments"]
 
