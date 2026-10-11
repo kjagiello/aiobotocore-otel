@@ -8,7 +8,7 @@ def uv_run(session: nox.Session, *args: str) -> None:
     session.run("uv", "run", "--python", session.python, "--active", *args)
 
 
-@nox.session(python=["3.10", "3.11", "3.12", "3.13", "3.14"])
+@nox.session(python=["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"])
 @nox.parametrize(
     "aiobotocore",
     [
@@ -44,7 +44,7 @@ def test(session: nox.Session, aiobotocore: str) -> None:
 OTEL_MIN_MINOR = 28
 
 
-@nox.session(python=["3.10", "3.14"])
+@nox.session(python=["3.10", "3.15"])
 @nox.parametrize("otel", ["min", "latest"])
 def test_otel(session: nox.Session, otel: str) -> None:
     # Install into the session venv rather than using `uv run --with`: the
